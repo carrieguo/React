@@ -28,6 +28,7 @@ handleChange: function(e) {
 
 * 非约束性组件： `用户输入A -> input 中显示A`
 * 约束性组件： `用户输入A -> 触发onChange事件 -> handleChange 中设置 state.name = “A” -> 渲染input使他的value变成A`
+
 正式因为这样，强烈推荐使用约束性组件，因为它能更好的控制组件的生命流程。
 
 ##更统一和更规范的接口

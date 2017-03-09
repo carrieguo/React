@@ -29,7 +29,7 @@ handleChange: function(e) {
 * 非约束性组件： `用户输入A -> input 中显示A`
 * 约束性组件： `用户输入A -> 触发onChange事件 -> handleChange 中设置 state.name = “A” -> 渲染input使他的value变成A`
 
-正式因为这样，强烈推荐使用约束性组件，因为它能更好的控制组件的生命流程。
+约束性组件，它能更好的控制组件的生命流程。
 
 ##更统一和更规范的接口
 
@@ -132,3 +132,75 @@ React 把 input,textarea 和 select 三个组件做了抽象和封装，他们�
     document.getElementById("div1")
     );
     ```
+##非约束性组件使用ref获取输入值
+组件并不是真实的 DOM 节点，而是存在于内存之中的一种数据结构，叫做虚拟 DOM （virtual DOM）。只有当它插入文档以后，才会变成真实的 DOM 。根据 React 的设计，所有的 DOM 变动，都先在虚拟 DOM 上发生，然后再将实际发生变动的部分，反映在真实 DOM上，这种算法叫做 DOM diff ，它可以极大提高网页的性能表现。
+
+但是，有时需要从组件获取真实 DOM 的节点，这时就要用到 ref 属性。
+
+需要注意的是，由于 this.refs.[refName] 属性获取的是真实 DOM ，所以必须等到虚拟 DOM 插入文档以后，才能使用这个属性，否则会报错。
+```javascript
+<div id="div1"></div>
+<script type="text/babel">
+    var MyForm = React.createClass({
+        getInitialState: function () {
+            return {
+                email: "",
+                intro: "",
+                city: "hz",
+                male: true, //性别
+                emailError: "",
+                introError: ""
+            };
+        },
+        handleGender: function (e) {
+            var male = !!(e.target.value == 'MALE');
+            this.setState({
+                male: male
+            });
+        },
+        handleSubmit: function (e) {
+            e.preventDefault();
+            console.log(this.refs['myEmail'].value);
+            console.log(this.refs['myIntro'].value);
+            console.log(this.refs['city'].value);
+        },
+        render: function () {
+            return (
+                    <form onSubmit={this.handleSubmit}>
+                        <p>
+                            <label htmlFor='email'>email:</label>
+                            <input type='text' name='email' id='email' ref="myEmail" defaultValue={this.state.email}/>
+                            <span>{this.state.emailError}</span>
+                        </p>
+                        <p>
+                            <label htmlFor='intro'>intro:</label>
+                            <textarea type='text' name='intro' id='intro' ref="myIntro" defaultValue={this.state.intro}/>
+                            <span>{this.state.introError}</span>
+                        </p>
+                        <p>
+                            <label htmlFor='city'>所在城市:</label>
+                            <select name='city' id='city' ref="city" defaultValue={this.state.city}>
+                                <option value='hz'>杭州</option>
+                                <option value='bj'>北京</option>
+                                <option value='sh'>上海</option>
+                            </select>
+                        </p>
+                        <p>
+                            <label>性别:</label>
+                            <input type='radio' name='gender' checked={this.state.male} onChange={this.handleGender}
+                                   value='MALE'/>
+                            <input type='radio' name='gender' checked={!this.state.male} onChange={this.handleGender}
+                                   value='FEMALE'/>
+                        </p>
+                        <button type="submit">提交</button>
+                    </form>
+            )
+        }
+    });
+
+    ReactDOM.render(
+            <MyForm />,
+        document.getElementById("div1")
+    );
+</script>
+```

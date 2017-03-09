@@ -7,6 +7,7 @@ React 是一个灵活的JS框架。你可以用它创建新的应用程序,也�
 ```javascript
 const element = <h1>Hello, world!</h1>;
 ```
+
 以上的变量声明，既不是HTML语法，也不是 string。
 
 这是JSX，它是JavaScript的语法扩展。我们建议在React中使用JSX来更好的体现UI。JSX可能让你想到 templare language,但 JSX 包含 JavaScript 的所有功能。

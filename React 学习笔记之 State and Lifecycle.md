@@ -55,7 +55,8 @@ class Clock extends React.Component {
     );
   }
 }
-```这样一来，我们就能用类似local state 和 lifecycle hooks的附加功能。
+```
+这样一来，我们就能用类似local state 和 lifecycle hooks的附加功能。
 ##给 Class 添加 Local State
 分以下三步从 props 挪 `date` 到 state:
 1) 在`render()`方法中，用`this.state.date`替换`this.props.date`:
@@ -89,9 +90,45 @@ ReactDOM.render(
 ```
 ##Adding Lifecycle Methods to a Class
 假如程序中有很多组件，我们需要在组件销毁后及时释放资源。
-当`Clock`第一次render到DOM中时，我们想创建一个定时器。在React中这称做"mounting"。
-每当被`Clock`创建的 DOM 被移除时，我们想创建一个定时器。在React中这称做"unmounting"。
-当一个组件mounts和unmounts时我们可以在声明特殊方法
 
+当`Clock`第一次 render 到 DOM 中时，我们想创建一个定时器。在React中这称做"mounting"。
 
+每当被`Clock`创建的 DOM 被移除时，我们想清除这个定时器。在React中这称做"unmounting"。
 
+当一个组件mounts和unmounts时，我们可以在这个组件类上声明特殊方法执行一些代码：
+```javascript
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {date: new Date()};
+  }
+
+  componentDidMount() {
+
+  }
+
+  componentWillUnmount() {
+
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Hello, world!</h1>
+        <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+      </div>
+    );
+  }
+}
+```
+这些方法被叫做“lifecycle hooks”。
+component 输出被 render 到 DOM 后， `componentDidMount()` 钩子就会运行。在这里设置一个定时器比较好。
+```javascript
+ componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      1000
+    );
+  }
+```
+请注意

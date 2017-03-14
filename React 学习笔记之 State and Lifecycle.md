@@ -59,6 +59,7 @@ class Clock extends React.Component {
 这样一来，我们就能用类似local state 和 lifecycle hooks的附加功能。
 ##给 Class 添加 Local State
 分以下三步从 props 挪 `date` 到 state:
+
 1) 在`render()`方法中，用`this.state.date`替换`this.props.date`:
 ```javascript
         <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
@@ -131,4 +132,53 @@ component 输出被 render 到 DOM 后， `componentDidMount()` 钩子就会运�
     );
   }
 ```
-请注意
+我们在`componentWillUnmount()`lifecycle hook中清除定时器：
+```javascript
+componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+```
+最后，我们来实现`tick()`方法。
+`this.setState()`用来更新组件本地状态
+```javascript
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {date: new Date()};
+  }
+
+  componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      1000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
+    this.setState({
+      date: new Date()
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Hello, world!</h1>
+        <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <Clock />,
+  document.getElementById('root')
+);
+```
+让我们快速回顾一下发生了什么以及方法被调用的顺序:
+1) `<Clock />`作为参数被传递给 `ReactDOM.render()`, React调用`Clock`组件的构造函数。当`Clock`需要显示当前时间时，用一个包含当前时间的对象来初始化`this.state`。我们接下来更新state。
+2) 之后React调用`Clock`组件的`render()`方法。

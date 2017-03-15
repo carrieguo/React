@@ -201,7 +201,7 @@ this.state.comment = 'Hello';
 this.setState({comment: 'Hello'});
 ```
 你只能在构造函数中初始化`this.state`。
-###State更新可能是异步的`看不懂，下面贴上英文吧还是`
+###State更新可能是异步的
 为了提升性能，React 可能批处理多个 `setState()`时分成单个的更新操作。
 由于`this.props`和`this.state`可能会异步更新，你应不能根据他们的值来得出接下来的state。
 例如，下面的代码可能更新counter失败
@@ -260,3 +260,14 @@ componentDidMount() {
   }
 ```
 The merging is shallow, so this.setState({comments}) leaves this.state.posts intact, but completely replaces this.state.comments.
+##The Data Flows Down
+
+
+
+
+
+
+
+
+
+

@@ -181,4 +181,82 @@ ReactDOM.render(
 ```
 让我们快速回顾一下发生了什么以及方法被调用的顺序:
 1) `<Clock />`作为参数被传递给 `ReactDOM.render()`, React调用`Clock`组件的构造函数。当`Clock`需要显示当前时间时，用一个包含当前时间的对象来初始化`this.state`。我们接下来更新state。
-2) 之后React调用`Clock`组件的`render()`方法。
+2) 之后React调用`Clock`组件的`render()`方法。据此，React知道显示到屏幕上什么内容。之后，React更新DOM来匹配`Clock`的render输出。
+3) `Clock`输出嵌入到 DOM 之后，React 调用 `componentDidMount()`生命周期钩子。其中，`Clock`组件让浏览器穿件一个定时器，每秒调用一次`tick()`。
+4) 浏览器每秒调用一次`tick()`方法。其中，`Clock`组件通过调用`setState()`来安排一次UI更新，`setState()`带有一个包含当前时间的对象。多亏了`setState()`调用，React 知道状态被改变了，就会再一次调用`render()`方法来得知显示到屏幕上什么内容。这一次，`this.state.date`的值在render()方法中会改变，这样一来，render输出将会包含当前时间。React相应的更新DOM。
+5) 如果 `Clock` 组件一旦从DOM 中移除，React 将调用 `componentWillUnmount()`生命周期钩子，计时器也被销毁。
+##正确使用State
+
+使用`setState()`时要注意以下三点。
+###不要直接修改State
+
+例如，下面的代码不会re-render一个组件
+```javascript
+// Wrong
+this.state.comment = 'Hello';
+```
+我们要用`setState()`方法
+```javascript
+// Correct
+this.setState({comment: 'Hello'});
+```
+你只能在构造函数中初始化`this.state`。
+###State更新可能是异步的`看不懂，下面贴上英文吧还是`
+为了提升性能，React 可能批处理多个 `setState()`时分成单个的更新操作。
+由于`this.props`和`this.state`可能会异步更新，你应不能根据他们的值来得出接下来的state。
+例如，下面的代码可能更新counter失败
+```javascript
+// Wrong
+this.setState({
+  counter: this.state.counter + this.props.increment,
+});
+```
+为了修复这个错误,我们用`setState()`的第二种方式，接收一个函数而不是一个对象。函数将接收先前的state作为第一个参数，此时props更新被作为第二个参数：
+```javascript
+// Correct
+this.setState((prevState, props) => ({
+  counter: prevState.counter + props.increment
+}));
+```
+上面是箭头函数写法，下面是常规写法
+```javascript
+// Correct
+this.setState(function(prevState, props) {
+  return {
+    counter: prevState.counter + props.increment
+  };
+});
+```
+###State Updates are Merged
+
+When you call setState(), React merges the object you provide into the current state.
+
+For example, your state may contain several independent variables:
+```javascript
+constructor(props) {
+    super(props);
+    this.state = {
+      posts: [],
+      comments: []
+    };
+  }
+```
+Then you can update them independently with separate setState() calls:
+
+
+```javascript
+componentDidMount() {
+    fetchPosts().then(response => {
+      this.setState({
+        posts: response.posts
+      });
+    });
+
+    fetchComments().then(response => {
+      this.setState({
+        comments: response.comments
+      });
+    });
+  }
+```
+The merging is shallow, so this.setState({comments}) leaves this.state.posts intact, but completely replaces this.state.comments.
